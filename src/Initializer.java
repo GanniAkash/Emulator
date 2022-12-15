@@ -25,7 +25,7 @@ public class Initializer {
             reader.close();
         }
         catch (Exception e) {
-            return prog_mem;
+            assert true;
         }
         for (int i=0; i<256; i++) {
             String addr = String.format("%04x", i);
@@ -41,7 +41,7 @@ public class Initializer {
         registers.put("00", "00000000");
         registers.put("01", "00000000");
         registers.put("02", "11111111");
-        registers.put("03", "00110000");
+        registers.put("03", "00011000");
         registers.put("04", "11100000");
         registers.put("05", "11111110");
         registers.put("06", "00000000");

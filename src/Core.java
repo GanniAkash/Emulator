@@ -13,7 +13,7 @@ public class Core {
         this.freq = freq;
         this.trisgpio_reg = "00001111";
         this.option_reg = "11111111";
-        this.pc = 0;
+        this.pc = 240;
         this.w_reg = "00";
         this.stack[0] = null;
         this.stack[1] = null;
@@ -172,10 +172,6 @@ public class Core {
             catch (final Exception e) {
                 break;
             }
-            System.out.println("PC\t" + pc);
-            registers.forEach((key, value) -> System.out.println(key + "\t" + value));
-            System.out.println("TRIS GPIO\t"+trisgpio_reg);
-            System.out.println("OPTION\t"+option_reg);
             if (pc == 255) pc = 0;
             else pc += 1;
             pcl = String.format("%12s", Integer.toBinaryString(pc)).replace(' ', '0');
@@ -185,7 +181,7 @@ public class Core {
     }
 
     public static void main(String[] args) {
-        Core pic = new Core("test.hex", 0);
+        Core pic = new Core("src/test.hex", 0);
         pic.start();
     }
 }
