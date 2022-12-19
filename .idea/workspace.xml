@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6650cf55-d233-4e6e-b2e7-f5ccde190c57" name="Changes" comment="Small Changes">
-      <changelist_data name="GanniAkash" email="ganniakash1610@gmail.com" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Core.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Core.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Initializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Initializer.java" afterDir="false" />
-    </list>
+    <list default="true" id="6650cf55-d233-4e6e-b2e7-f5ccde190c57" name="Changes" comment="Small Changes 1" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -74,8 +69,26 @@
       <option name="project" value="LOCAL" />
       <updated>1671126374285</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Small Changes 1">
+      <created>1671129395882</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1671129395882</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+        <option value="Space.CommitStatus" />
+      </list>
+    </option>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -103,7 +116,8 @@
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="Small Changes" />
-    <option name="LAST_COMMIT_MESSAGE" value="Small Changes" />
+    <MESSAGE value="Small Changes 1" />
+    <option name="LAST_COMMIT_MESSAGE" value="Small Changes 1" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

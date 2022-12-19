@@ -28,13 +28,25 @@ public class Core {
         else if(opcode.startsWith("1000")) retlw(opcode.substring(4));
         else if(opcode.startsWith("101")) gotok(opcode.substring(3));
         else if (opcode.startsWith("00")) {
-            if (Objects.equals(opcode.substring(2, 6), "0001")) {
+            if(Objects.equals(opcode.substring(2, 7), "00001")) movwf(opcode.substring(7));
+            else if (Objects.equals(opcode.substring(2, 6), "0001")) {
                 if (opcode.charAt(6) == 'a') clrf(opcode.substring(7));
                 else clrw();
             }
             else if(Objects.equals(opcode.substring(2, 6), "0011")) decf(opcode.substring(6, 7), opcode.substring(7));
             else if(Objects.equals(opcode.substring(2, 6), "1011")) decfsz(opcode.substring(6, 7), opcode.substring(7));
-            else if(Objects.equals(opcode.substring(2, 7), "00001")) movwf(opcode.substring(7));
+            else if(Objects.equals(opcode.substring(2, 6), "0111")) addwf(opcode.substring(6, 7), opcode.substring(7));
+            else if(Objects.equals(opcode.substring(2, 6), "0101")) andwf(opcode.substring(6, 7), opcode.substring(7));
+            else if(Objects.equals(opcode.substring(2, 6), "1001")) comf(opcode.substring(6, 7), opcode.substring(7));
+            else if(Objects.equals(opcode.substring(2, 6), "1010")) incf(opcode.substring(6, 7), opcode.substring(7));
+            else if(Objects.equals(opcode.substring(2, 6), "1111")) incfsz(opcode.substring(6, 7), opcode.substring(7));
+            else if(Objects.equals(opcode.substring(2, 6), "0100")) iorwf(opcode.substring(6, 7), opcode.substring(7));
+            else if(Objects.equals(opcode.substring(2, 6), "1000")) movf(opcode.substring(6, 7), opcode.substring(7));
+            else if(Objects.equals(opcode.substring(2, 6), "1101")) rlf(opcode.substring(6, 7), opcode.substring(7));
+            else if(Objects.equals(opcode.substring(2, 6), "1100")) rrf(opcode.substring(6, 7), opcode.substring(7));
+            else if(Objects.equals(opcode.substring(2, 6), "0010")) subwf(opcode.substring(6, 7), opcode.substring(7));
+            else if(Objects.equals(opcode.substring(2, 6), "1110")) swapf(opcode.substring(6, 7), opcode.substring(7));
+            else if(Objects.equals(opcode.substring(2, 6), "0110")) xorwf(opcode.substring(6, 7), opcode.substring(7));
         }
         else if(opcode.startsWith("01")) {
             opcode = opcode.substring(2);
@@ -104,7 +116,7 @@ public class Core {
         if (f_val==0) bsf("2", Integer.toBinaryString(3));
         else bcf("2", Integer.toBinaryString(3));
         String s_f_val = String.format("%8s", Integer.toBinaryString(f_val)).replace(' ', '0');
-        if (d.equals("0")) w_reg = s_f_val;
+        if (d.equals("0")) w_reg = String.format("%02x", f_val);
         else registers.put(f, s_f_val);
     }
 
@@ -113,12 +125,9 @@ public class Core {
         int f_val = Integer.parseInt(registers.get(f), 2);
         if (f_val == 0) f_val = 255;
         else f_val -= 1;
-        if (f_val==0) {
-            if(pc == 255) pc = 0;
-            else pc += 1;
-        }
+        if (f_val==0) pc += 1;
         String s_f_val = String.format("%8s", Integer.toBinaryString(f_val)).replace(' ', '0');
-        if (d.equals("0")) w_reg = s_f_val;
+        if (d.equals("0")) w_reg = String.format("%02x", f_val);
         else registers.put(f, s_f_val);
     }
 
@@ -160,6 +169,137 @@ public class Core {
         stack[1] = null;
     }
 
+    private void addwf(String d, String f) {
+        f = String.format("%02x", Integer.parseInt(f, 2));
+        int res = Integer.parseInt(w_reg, 8) + Integer.parseInt(registers.get(f), 2);
+        if (res > 255) {
+            res = res%255;
+            bsf("0", Integer.toBinaryString(3));
+        }
+        else bcf("0", Integer.toBinaryString(3));
+        if (res == 0) bsf("2", Integer.toBinaryString(3));
+        else bcf("2", Integer.toBinaryString(3));
+        if(Initializer.dcarry_add(String.format("%8s", Integer.parseInt(w_reg, 16)).replace(' ', '0'), registers.get(f))) bsf("1", Integer.toBinaryString(3));
+        else bcf("1", Integer.toBinaryString(3));
+        if (d.equals("0")) w_reg = String.format("%02x", res);
+        else registers.put(f, String.format("%8s", res).replace(' ', '0'));
+    }
+
+    private void andwf(String d, String f) {
+        f = String.format("%02x", Integer.parseInt(f, 2));
+        int res = Integer.parseInt(registers.get(f), 2) & Integer.parseInt(w_reg, 16);
+        if (res == 0) bsf("2", Integer.toBinaryString(3));
+        else bcf("2", Integer.toBinaryString(3));
+        if (d.equals("0")) w_reg = String.format("%02x", res);
+        else registers.put(f, String.format("%8s", res).replace(' ', '0'));
+    }
+
+    private void comf(String d, String f) {
+        f = String.format("%02x", Integer.parseInt(f, 2));
+        String f_val = registers.get(f);
+        f_val = f_val.replace('0', '-');
+        f_val = f_val.replace('1', '0');
+        f_val = f_val.replace('-', '1');
+        if (f_val.equals("00000000")) bsf("2", Integer.toBinaryString(3));
+        else bcf("2", Integer.toBinaryString(3));
+        if (d.equals("0")) w_reg = String.format("%02x", Integer.parseInt(f_val, 2));
+        else registers.put(f, f_val);
+    }
+
+    private void incf(String d, String f) {
+        f = String.format("%02x", Integer.parseInt(f, 2));
+        int f_val = Integer.parseInt(registers.get(f), 2);
+        if (f_val == 255) f_val = 0;
+        else f_val += 1;
+        if (f_val==0) bsf("2", Integer.toBinaryString(3));
+        else bcf("2", Integer.toBinaryString(3));
+        String s_f_val = String.format("%8s", Integer.toBinaryString(f_val)).replace(' ', '0');
+        if (d.equals("0")) w_reg = String.format("%02x", f_val);
+        else registers.put(f, s_f_val);
+    }
+
+    private void incfsz(String d, String f) {
+        f = String.format("%02x", Integer.parseInt(f, 2));
+        int f_val = Integer.parseInt(registers.get(f), 2);
+        if (f_val == 255) f_val = 0;
+        else f_val += 1;
+        if (f_val==0) pc += 1;
+        String s_f_val = String.format("%8s", Integer.toBinaryString(f_val)).replace(' ', '0');
+        if (d.equals("0")) w_reg = String.format("%02x", f_val);
+        else registers.put(f, s_f_val);
+    }
+
+    private void iorwf(String d, String f) {
+        f = String.format("%02x", Integer.parseInt(f, 2));
+        int res = Integer.parseInt(registers.get(f), 2) | Integer.parseInt(w_reg, 16);
+        if (res == 0) bsf("2", Integer.toBinaryString(3));
+        else bcf("2", Integer.toBinaryString(3));
+        if (d.equals("0")) w_reg = String.format("%02x", res);
+        else registers.put(f, String.format("%8s", res).replace(' ', '0'));
+    }
+
+    private void movf(String d, String f) {
+        f = String.format("%02x", Integer.parseInt(f, 2));
+        if (d.equals("0")) w_reg = String.format("%02x", Integer.parseInt(registers.get(f), 2));
+        if (registers.get(f).equals("00000000")) bsf("2", Integer.toBinaryString(3));
+        else bcf("2", Integer.toBinaryString(3));
+    }
+
+    private void rrf(String d, String f) {
+        f = String.format("%02x", Integer.parseInt(f, 2));
+        String status = registers.get("03");
+        String f_val = registers.get(f);
+        char c = status.charAt(7);
+        status = status.substring(0, 7) + f_val.charAt(7);
+        f_val = c + f_val.substring(0, 7);
+        if (d.equals("0")) w_reg = String.format("%02x", Integer.parseInt(f_val, 2));
+        else registers.put(f, f_val);
+    }
+
+    private void rlf(String d, String f) {
+        f = String.format("%02x", Integer.parseInt(f, 2));
+        String status = registers.get("03");
+        String f_val = registers.get(f);
+        char c = status.charAt(7);
+        status = status.substring(0, 7) + f_val.charAt(0);
+        f_val = f_val.substring(1) + c;
+        if (d.equals("0")) w_reg = String.format("%02x", Integer.parseInt(f_val, 2));
+        else registers.put(f, f_val);
+    }
+
+    private void subwf(String d, String f) {
+        f = String.format("%02x", Integer.parseInt(f, 2));
+        if (d.equals("1")) {
+            String temp_w = String.valueOf(w_reg);
+            comf(d, f);
+            movlw("1");
+            addwf(d, f);
+            String temp_reg = registers.get("03");
+            movlw(temp_w);
+            registers.put("03", temp_reg);
+        }
+        else {
+            String temp_f = registers.get(f);
+            comf(d, f);
+            movwf(f);
+            movlw("1");
+            addwf(d, f);
+            registers.put(f, temp_f);
+        }
+    }
+
+    private void swapf(String d, String f) {
+        f = String.format("%02x", Integer.parseInt(f, 2));
+        String f_val = registers.get(f);
+        f_val = f_val.substring(4) + f_val.substring(0, 4);
+        if (d.equals("0")) w_reg = String.format("%02x", Integer.parseInt(f_val, 2));
+        else registers.put(f, f_val);
+    }
+
+    private void xorwf(String d, String f) {
+        // Incomplete
+    }
+
     public final void start() {
         System.out.println(freq);
         String opcode, pcl;
@@ -172,7 +312,7 @@ public class Core {
             catch (final Exception e) {
                 break;
             }
-            if (pc == 255) pc = 0;
+            if (pc >= 255) pc = 0;
             else pc += 1;
             pcl = String.format("%12s", Integer.toBinaryString(pc)).replace(' ', '0');
             pcl = pcl.substring(4);
