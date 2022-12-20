@@ -6,7 +6,7 @@ public class Core {
     private final Integer[] stack = new Integer[2];
     private String trisgpio_reg, option_reg, w_reg, wdt;
     private final HashMap<String, String> prog_mem;
-    private final HashMap<String, String> registers;
+    public final HashMap<String, String> registers;
     public Core(String hex_file, int freq) {
         this.prog_mem = Initializer.init_mem(hex_file);
         this.registers = Initializer.init_registers();
@@ -366,10 +366,5 @@ public class Core {
             pcl = pcl.substring(4);
             registers.put("02", pcl);
         }
-    }
-
-    public static void main(String[] args) {
-        Core pic = new Core("src/test.hex", 0);
-        pic.start();
     }
 }
