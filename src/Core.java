@@ -4,7 +4,7 @@ public class Core {
     private int pc;
     private final int freq;
     private final Integer[] stack = new Integer[2];
-    private String trisgpio_reg, option_reg, w_reg;
+    private String trisgpio_reg, option_reg, w_reg, wdt;
     private final HashMap<String, String> prog_mem;
     private final HashMap<String, String> registers;
     public Core(String hex_file, int freq) {
@@ -13,19 +13,26 @@ public class Core {
         this.freq = freq;
         this.trisgpio_reg = "00001111";
         this.option_reg = "11111111";
+        this.wdt = "00000000";
         this.pc = 240;
         this.w_reg = "00";
         this.stack[0] = null;
         this.stack[1] = null;
+        System.out.println(trisgpio_reg+"\t"+option_reg+"\t"+wdt);
     }
 
     private void execute(String opcode){
         if (opcode.equals("000000000000")) {assert true;}
         else if(opcode.equals("000000000010")) option();
+        else if(opcode.equals("000000000010")) clrwdt();
+        else if(opcode.equals("000000000011")) sleep();
         else if (opcode.startsWith("000000000")) tris(opcode.substring(9));
         else if(opcode.startsWith("1001")) call(opcode.substring(4));
         else if(opcode.startsWith("1100")) movlw(opcode.substring(4));
         else if(opcode.startsWith("1000")) retlw(opcode.substring(4));
+        else if(opcode.startsWith("1110")) andlw(opcode.substring(4));
+        else if(opcode.startsWith("1101")) iorlw(opcode.substring(4));
+        else if(opcode.startsWith("1111")) xorlw(opcode.substring(4));
         else if(opcode.startsWith("101")) gotok(opcode.substring(3));
         else if (opcode.startsWith("00")) {
             if(Objects.equals(opcode.substring(2, 7), "00001")) movwf(opcode.substring(7));
@@ -179,10 +186,10 @@ public class Core {
         else bcf("0", Integer.toBinaryString(3));
         if (res == 0) bsf("2", Integer.toBinaryString(3));
         else bcf("2", Integer.toBinaryString(3));
-        if(Initializer.dcarry_add(String.format("%8s", Integer.parseInt(w_reg, 16)).replace(' ', '0'), registers.get(f))) bsf("1", Integer.toBinaryString(3));
+        if(Initializer.dcarry_add(String.format("%8s", Integer.toBinaryString(Integer.parseInt(w_reg, 16))).replace(' ', '0'), registers.get(f))) bsf("1", Integer.toBinaryString(3));
         else bcf("1", Integer.toBinaryString(3));
         if (d.equals("0")) w_reg = String.format("%02x", res);
-        else registers.put(f, String.format("%8s", res).replace(' ', '0'));
+        else registers.put(f, String.format("%8s", Integer.toBinaryString(res)).replace(' ', '0'));
     }
 
     private void andwf(String d, String f) {
@@ -191,7 +198,7 @@ public class Core {
         if (res == 0) bsf("2", Integer.toBinaryString(3));
         else bcf("2", Integer.toBinaryString(3));
         if (d.equals("0")) w_reg = String.format("%02x", res);
-        else registers.put(f, String.format("%8s", res).replace(' ', '0'));
+        else registers.put(f, String.format("%8s", Integer.toBinaryString(res)).replace(' ', '0'));
     }
 
     private void comf(String d, String f) {
@@ -235,7 +242,7 @@ public class Core {
         if (res == 0) bsf("2", Integer.toBinaryString(3));
         else bcf("2", Integer.toBinaryString(3));
         if (d.equals("0")) w_reg = String.format("%02x", res);
-        else registers.put(f, String.format("%8s", res).replace(' ', '0'));
+        else registers.put(f, String.format("%8s", Integer.toBinaryString(res)).replace(' ', '0'));
     }
 
     private void movf(String d, String f) {
@@ -297,7 +304,48 @@ public class Core {
     }
 
     private void xorwf(String d, String f) {
+        f = String.format("%02x", Integer.parseInt(f, 2));
+        int res = Integer.parseInt(registers.get(f), 2) ^ Integer.parseInt(w_reg, 16);
+        if (d.equals("0")) w_reg = String.format("%02x", res);
+        else registers.put(f, String.format("%8s", Integer.toBinaryString(res)).replace(' ', '0'));
+    }
+
+    private void andlw(String k)  {
+        int res = Integer.parseInt(k, 2);
+        res = res & Integer.parseInt(w_reg, 16);
+        if (res == 0) bsf("2", Integer.toBinaryString(3));
+        else bcf("2", Integer.toBinaryString(3));
+        w_reg = String.format("%02x", res);
+    }
+
+    private void clrwdt() {
+        bsf("3", Integer.toBinaryString(3));
+        bsf("4", Integer.toBinaryString(3));
+        wdt = "00000000";
         // Incomplete
+    }
+
+    private void iorlw(String k)  {
+        int res = Integer.parseInt(k, 2);
+        res = res | Integer.parseInt(w_reg, 16);
+        if (res == 0) bsf("2", Integer.toBinaryString(3));
+        else bcf("2", Integer.toBinaryString(3));
+        w_reg = String.format("%02x", res);
+    }
+
+    private void xorlw(String k)  {
+        int res = Integer.parseInt(k, 2);
+        res = res ^ Integer.parseInt(w_reg, 16);
+        if (res == 0) bsf("2", Integer.toBinaryString(3));
+        else bcf("2", Integer.toBinaryString(3));
+        w_reg = String.format("%02x", res);
+    }
+
+    private void sleep() {
+        bcf("3", Integer.toBinaryString(3));
+        bsf("4", Integer.toBinaryString(3));
+        wdt = "00000000";
+        // Incomeplte
     }
 
     public final void start() {
