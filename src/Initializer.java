@@ -55,15 +55,6 @@ public class Initializer {
         return registers;
     }
 
-    public static boolean carry_add(String num1, String num2) {
-        int i = num1.length()-1;
-        while(i >= 0) {
-            if (num1.charAt(i)=='1' && num2.charAt(i)=='1') return true;
-            i -= 1;
-        }
-        return false;
-    }
-
     public static boolean dcarry_add(String num1, String num2) {
         int i = num1.length()-1;
         while(i >= 4) {
