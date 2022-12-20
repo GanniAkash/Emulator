@@ -1,8 +1,6 @@
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,36 +15,27 @@ public class Controller {
     private TableColumn<SFR, String> addr, val;;
 
     public class SFR {
-        private final StringProperty addr = new SimpleStringProperty();
-        private final StringProperty val = new SimpleStringProperty();
+        private String addr, val;
 
-        public final StringProperty addrProperty() {
+        public String getAddr() {
             return addr;
         }
 
-        public final String getAddr() {
-            return addr.get();
-        }
-
-        public final void setAddr(String s) {
-            addr.set(s);
-        }
-
-        public final StringProperty valProperty() {
+        public String getVal() {
             return val;
         }
 
-        public final String getVal() {
-            return val.get();
+        public void setAddr(String s) {
+            addr = s;
         }
 
-        public final void setVal(String s) {
-            val.set(s);
+        public void setVal(String s) {
+            val = s;
         }
 
-        public SFR (String s1, String s2) {
-            setAddr(s1);
-            setVal(s2);
+        public SFR(String addr, String val) {
+            setAddr(addr);
+            setVal(val);
         }
     }
 
