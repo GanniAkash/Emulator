@@ -11,7 +11,12 @@ public class App extends Application {
         stage.setTitle("Emulator");
         
         Parent root = FXMLLoader.load(getClass().getResource("javafx/BasicApplication_i18n.fxml"));
-        Scene scene = new Scene(root);        
+        Scene scene = new Scene(root); 
+        stage.setTitle("Emulator");
+        stage.setMinHeight(480);
+        stage.setMinWidth(1000);
+        stage.setMaxHeight(480);
+        stage.setMaxWidth(1000); 
         stage.setScene(scene);
         stage.show();
     }

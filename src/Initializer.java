@@ -25,7 +25,7 @@ public class Initializer {
             reader.close();
         }
         catch (Exception e) {
-            assert true;
+            return null;
         }
         for (int i=0; i<256; i++) {
             String addr = String.format("%04x", i);

@@ -1,3 +1,5 @@
+import java.io.FileNotFoundException;
+import java.nio.file.NoSuchFileException;
 import java.util.*;
 
 public class Core {
@@ -7,9 +9,10 @@ public class Core {
     private String trisgpio_reg, option_reg, w_reg, wdt;
     private final HashMap<String, String> prog_mem;
     public final HashMap<String, String> registers;
-    public Core(String hex_file, int freq) {
+    public Core(String hex_file, int freq) throws FileNotFoundException {
         this.prog_mem = Initializer.init_mem(hex_file);
-        this.registers = Initializer.init_registers();
+        if(prog_mem != null) this.registers = Initializer.init_registers();
+        else throw new FileNotFoundException("File not there");
         this.freq = freq;
         this.trisgpio_reg = "00001111";
         this.option_reg = "11111111";
@@ -348,7 +351,7 @@ public class Core {
         // Incomeplte
     }
 
-    public final void start() {
+    public final void run() {
         System.out.println(freq);
         String opcode, pcl;
         while(true) {
