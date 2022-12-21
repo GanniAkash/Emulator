@@ -21,6 +21,7 @@ import java.util.Optional;
 public class Controller {
 
     private String pic_as_path = "pic-as";
+    Core pic =null;
 
     @FXML
     private TableView<SFR> table, table2;
@@ -88,6 +89,11 @@ public class Controller {
     @FXML
     private void step() {
         System.out.println("step");
+        if(pic == null) raiseError("Compile before stepping or running.");
+        else {
+            pic.step();
+            updateTable();
+        }
     }
 
     @FXML
@@ -138,7 +144,10 @@ public class Controller {
 		    }
 
             int exitVal = process.waitFor();
-            if (exitVal == 0) init();
+            if (exitVal == 0) {
+                init();
+                updateTable();
+            }
             else raiseError("Could not compile");
         }
         catch (Exception e) {System.out.println("Error !!!!");}
@@ -146,17 +155,20 @@ public class Controller {
 
     private void init() throws FileNotFoundException{
         try {
-            Core pic = new Core("out/production/Emulator/temp.hex", 1);
-            addr.setCellValueFactory(new PropertyValueFactory<SFR,String>("addr"));
-            val.setCellValueFactory(new PropertyValueFactory<SFR,String>("val"));
-            table.setItems(sfr(pic));
-            addr2.setCellValueFactory(new PropertyValueFactory<SFR,String>("addr"));
-            val2.setCellValueFactory(new PropertyValueFactory<SFR,String>("val"));
-            table2.setItems(reg(pic));
+            pic = new Core("out/production/Emulator/temp.hex", 1);
         }
         catch (FileNotFoundException e) {
             raiseError("No such file found!");
         }
+    }
+
+    public void updateTable() {
+        addr.setCellValueFactory(new PropertyValueFactory<SFR,String>("addr"));
+        val.setCellValueFactory(new PropertyValueFactory<SFR,String>("val"));
+        table.setItems(sfr(pic));
+        addr2.setCellValueFactory(new PropertyValueFactory<SFR,String>("addr"));
+        val2.setCellValueFactory(new PropertyValueFactory<SFR,String>("val"));
+        table2.setItems(reg(pic));
     }
 
     @FXML

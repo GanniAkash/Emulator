@@ -1,5 +1,4 @@
 import java.io.FileNotFoundException;
-import java.nio.file.NoSuchFileException;
 import java.util.*;
 
 public class Core {
@@ -21,7 +20,7 @@ public class Core {
         this.w_reg = "00";
         this.stack[0] = null;
         this.stack[1] = null;
-        System.out.println(trisgpio_reg+"\t"+option_reg+"\t"+wdt);
+        System.out.println(trisgpio_reg+"\t"+option_reg+"\t"+wdt+"\t"+this.freq);
     }
 
     private void execute(String opcode){
@@ -352,22 +351,25 @@ public class Core {
     }
 
     public final void run() {
-        System.out.println(freq);
-        String opcode, pcl;
+        pc = 0;
         while(true) {
-            opcode = prog_mem.get(String.format("%04x", pc));
-            opcode = String.format("%12s", Integer.toBinaryString(Integer.parseInt(opcode, 16))).replace(' ', '0');
-            try {
-                execute(opcode);
-            }
-            catch (final Exception e) {
-                break;
-            }
-            if (pc >= 255) pc = 0;
-            else pc += 1;
-            pcl = String.format("%12s", Integer.toBinaryString(pc)).replace(' ', '0');
-            pcl = pcl.substring(4);
-            registers.put("02", pcl);
+            step();
         }
+    }
+
+    public final void step() {
+        String opcode, pcl;
+        opcode = prog_mem.get(String.format("%04x", pc));
+        opcode = String.format("%12s", Integer.toBinaryString(Integer.parseInt(opcode, 16))).replace(' ', '0');
+        try {
+            execute(opcode);
+        }
+        catch (final Exception e) {
+        }
+        if (pc >= 255) pc = 0;
+        else pc += 1;
+        pcl = String.format("%12s", Integer.toBinaryString(pc)).replace(' ', '0');
+        pcl = pcl.substring(4);
+        registers.put("02", pcl);
     }
 }
