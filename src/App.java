@@ -1,3 +1,5 @@
+import java.nio.file.Path;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -9,8 +11,7 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         stage.setTitle("Emulator");
-        
-        Parent root = FXMLLoader.load(getClass().getResource("javafx/BasicApplication_i18n.fxml"));
+        Parent root = FXMLLoader.load(Path.of("lib/fxml/BasicApplication_i18n.fxml").toUri().toURL());
         Scene scene = new Scene(root); 
         stage.setTitle("Emulator");
         stage.setMinHeight(480);

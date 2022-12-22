@@ -163,12 +163,15 @@ public class Controller {
         //writing to a .asm file to compile
         String code = editor.getText();
         try {
+            File f = new File("temp/temp.asm");
+            f.getParentFile().mkdirs();
             FileWriter fw = new FileWriter(Paths.get("temp/temp.asm").toString());
             fw.write(code);
             fw.close();
         }
         catch (Exception e) {
             raiseError("Error occured while writing to a file.");
+            return;
         }
         //compiling
         try {
