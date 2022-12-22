@@ -42,7 +42,9 @@ public class Initializer {
         HashMap <String, String> registers = new HashMap<>();
         registers.put("00", "00000000");
         registers.put("01", "00000000");
-        registers.put("02", "11111111");
+        String pcl = String.format("%12s", Integer.toBinaryString(getStartAddr())).replace(' ', '0');
+        pcl = pcl.substring(4);
+        registers.put("02", pcl);
         registers.put("03", "00011000");
         registers.put("04", "11100000");
         registers.put("05", "11111110");

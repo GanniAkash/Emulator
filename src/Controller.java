@@ -17,11 +17,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.Optional;
 public class Controller {
+ 
 
     private Path pic_as_path = Paths.get("/Applications/microchip/xc8/v2.40/pic-as/bin/pic-as");
-    Core pic =null;
+    public Core pic =null;
+    private boolean flag = false;
 
     @FXML
     private TableView<SFR> table, table2;
@@ -99,15 +102,90 @@ public class Controller {
 
     @FXML
     private void run() {
-        System.out.println("run");
+        if(pic == null) {
+            raiseError("Compile before stepping or running.");
+            return;
+        }
+        if(flag) {
+            Set<Thread> s = Thread.getAllStackTraces().keySet();
+            for (Thread i : s) {
+                if(i.getName().equals("running_thread")) {
+                    i.interrupt();
+                    flag = false;
+                }
+            }
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(!Thread.interrupted()) {
+                    int flag_in = pic.step();
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateTables();
+                        }
+                    });
+                    if(flag_in==1) return;
+                    try {
+                        Thread.sleep(0, 1000);
+                    }
+                    catch (InterruptedException e) {
+                        System.out.println(e.getMessage());
+                        return;
+                    }
+                }
+            }
+        }, "running_thread").start();
+        flag = true;
     }
 
     @FXML
     private void step() {
-        if(pic == null) raiseError("Compile before stepping or running.");
+        if(pic == null) {
+            raiseError("Compile before stepping or running.");
+            return;
+        }
+        if(flag) {
+            Set<Thread> s = Thread.getAllStackTraces().keySet();
+            for (Thread i : s) {
+                if(i.getName().equals("running_thread")) {
+                    i.interrupt();
+                    flag = false;
+                }
+            }
+        }
         else {
             pic.step();
-            updateTable();
+            updateTables();
+        }
+    }
+
+    @FXML
+    private void reset() {
+        if(flag) {
+            Set<Thread> s = Thread.getAllStackTraces().keySet();
+            for (Thread i : s) {
+                if(i.getName().equals("running_thread")) {
+                    i.interrupt();
+                    flag = false;
+                }
+            }
+        }
+        init_core();
+        updateTables();
+    }
+
+    @FXML
+    private void stop() {
+        if(flag) {
+            Set<Thread> s = Thread.getAllStackTraces().keySet();
+            for (Thread i : s) {
+                if(i.getName().equals("running_thread")) {
+                    i.interrupt();
+                    flag = false;
+                }
+            }
         }
     }
 
@@ -116,6 +194,15 @@ public class Controller {
 
     @FXML
     private void delete() {
+        if(flag) {
+            Set<Thread> s = Thread.getAllStackTraces().keySet();
+            for (Thread i : s) {
+                if(i.getName().equals("running_thread")) {
+                    i.interrupt();
+                    flag = false;
+                }
+            }
+        }
         editor.clear();
         pic = null;
         table.setItems(null);
@@ -180,7 +267,7 @@ public class Controller {
             int exitVal = process.waitFor();
             if (exitVal == 0) {
                 init_core();
-                updateTable();
+                updateTables();
             }
             else raiseError("Could not compile");
         }
@@ -192,7 +279,7 @@ public class Controller {
         }
     }
 
-    private void init_core() throws FileNotFoundException{
+    private void init_core(){
         try {
             pic = new Core("temp/temp.hex", 1);
         }
@@ -201,7 +288,7 @@ public class Controller {
         }
     }
 
-    public void updateTable() {
+    public void updateTables() {
         addr.setCellValueFactory(new PropertyValueFactory<SFR,String>("addr"));
         val.setCellValueFactory(new PropertyValueFactory<SFR,String>("val"));
         table.setItems(sfr(pic));

@@ -357,15 +357,16 @@ public class Core {
         // Incomeplte
     }
 
+    @Deprecated
     public final void run() {
-        pc = 0;
         while(true) {
             step();
         }
     }
 
-    public final void step() {
+    public final int step() {
         String opcode, pcl;
+        int flag = 0;
         opcode = prog_mem.get(String.format("%04x", pc));
         opcode = String.format("%12s", Integer.toBinaryString(Integer.parseInt(opcode, 16))).replace(' ', '0');
         try {
@@ -373,10 +374,14 @@ public class Core {
         }
         catch (final Exception e) {
         }
-        if (pc >= 255) pc = 0;
+        if (pc >= 255) {
+            pc = 0;
+            flag = 1;
+        }
         else pc += 1;
         pcl = String.format("%12s", Integer.toBinaryString(pc)).replace(' ', '0');
         pcl = pcl.substring(4);
         registers.put("02", pcl);
+        return flag;
     }
 }

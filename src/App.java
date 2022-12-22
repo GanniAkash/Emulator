@@ -12,7 +12,7 @@ public class App extends Application {
     public void start(Stage stage) throws Exception {
         stage.setTitle("Emulator");
         Parent root = FXMLLoader.load(Path.of("lib/fxml/BasicApplication_i18n.fxml").toUri().toURL());
-        Scene scene = new Scene(root); 
+        Scene scene = new Scene(root);
         stage.setTitle("Emulator");
         stage.setMinHeight(480);
         stage.setMinWidth(1000);

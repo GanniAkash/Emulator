@@ -60,11 +60,15 @@
                      </VBox.margin></TextArea>
                   <HBox VBox.vgrow="NEVER">
                      <children>
-                        <Button fx:id="step" mnemonicParsing="false" onAction="#step" text="Step" />
+                        <Button fx:id="compile" mnemonicParsing="false" onAction="#compile" text="Compile" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Button fx:id="compile" layoutX="70.0" layoutY="15.0" mnemonicParsing="false" onAction="#compile" text="Compile" />
+                        <Button fx:id="step" layoutX="70.0" layoutY="15.0" mnemonicParsing="false" onAction="#step" text="Step" />
                         <Region layoutX="114.0" layoutY="15.0" HBox.hgrow="ALWAYS" />
                         <Button fx:id="run" mnemonicParsing="false" onAction="#run" text="Run" />
+                        <Region layoutX="296.0" layoutY="15.0" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="stop" layoutX="414.0" layoutY="15.0" mnemonicParsing="false" onAction="#stop" text="Stop" />
+                        <Region layoutX="114.0" layoutY="15.0" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="compile1" layoutX="232.0" layoutY="15.0" mnemonicParsing="false" onAction="#reset" text="Reset" />
                      </children>
                      <padding>
                         <Insets bottom="5.0" left="60.0" right="60.0" top="5.0" />
