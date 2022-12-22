@@ -128,10 +128,9 @@ public class Controller {
                     });
                     if(flag_in==1) return;
                     try {
-                        Thread.sleep(0, 1000);
+                        Thread.sleep(0, 1);
                     }
-                    catch (InterruptedException e) {
-                        System.out.println(e.getMessage());
+                    catch(InterruptedException e){
                         return;
                     }
                 }
@@ -249,6 +248,10 @@ public class Controller {
     private void compile() throws IOException {
         //writing to a .asm file to compile
         String code = editor.getText();
+        if(flag) {
+            raiseError("Another instance running.");
+            return;
+        }
         try {
             File f = new File("temp/temp.asm");
             f.getParentFile().mkdirs();
@@ -263,13 +266,12 @@ public class Controller {
         //compiling
         try {
             Process process = Runtime.getRuntime().exec(pic_as_path+" -mcpu=PIC10F200 -o"+Paths.get("temp/temp").toString()+" "+Paths.get("temp/temp.asm").toString()+" -xassembler-with-cpp");
-
             int exitVal = process.waitFor();
             if (exitVal == 0) {
                 init_core();
                 updateTables();
             }
-            else raiseError("Could not compile");
+            else raiseError("Could not be compiled.");
         }
         catch (IOException e) {
             raiseError("Path to pic-as compiler not set.\nPlease set it in the settings menu.");

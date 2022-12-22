@@ -4,6 +4,7 @@ import java.io.File;
 public class Initializer {
     private static int n;
     public static HashMap<String, String> init_mem(String hex_file) {
+        n = 0;
         HashMap<String, String> prog_mem = new HashMap<>();
         try {
             File file = new File(hex_file);

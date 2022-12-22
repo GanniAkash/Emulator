@@ -3,6 +3,8 @@ import java.util.*;
 
 @SuppressWarnings("unused")
 public class Core {
+
+    // 10 times slower than original pic;
     private int pc;
     private final int freq;
     private final Integer[] stack = new Integer[2];
@@ -66,25 +68,25 @@ public class Core {
         }
         else if(opcode.startsWith("01")) {
             opcode = opcode.substring(2);
-            if (opcode.startsWith("00")) bcf(opcode.substring(4, 7), opcode.substring(7));
-            else if(opcode.startsWith("01")) bsf(opcode.substring(4, 7), opcode.substring(7));
-            else if(opcode.startsWith("10")) btfsc(opcode.substring(4, 7), opcode.substring(7));
-            else if(opcode.startsWith("11")) btfss(opcode.substring(4, 7), opcode.substring(7));
+            if (opcode.startsWith("00")) bcf(opcode.substring(2, 5), opcode.substring(5));
+            else if(opcode.startsWith("01")) bsf(opcode.substring(2, 5), opcode.substring(5));
+            else if(opcode.startsWith("10")) btfsc(opcode.substring(2, 5), opcode.substring(5));
+            else if(opcode.startsWith("11")) btfss(opcode.substring(2, 5), opcode.substring(5));
         }
     }
 
     private void bcf(String b, String f) {
+        System.out.println(b+"\t"+f);
         f = String.format("%02x", Integer.parseInt(f, 2));
         String f_val = registers.get(f);
-        b = b.substring(2)+b.charAt(1)+b.charAt(0);
         int bit = Integer.parseInt(b, 2);
         f_val = f_val.substring(0, 7-bit)+'0'+f_val.substring(8-bit);
         registers.put(f, f_val);
     }
 
     private void bsf(String b, String f) {
+        System.out.println(b+"\t"+f);
         f = String.format("%02x", Integer.parseInt(f, 2));
-        b = b.substring(2)+b.charAt(1)+b.charAt(0);
         String f_val = registers.get(f);
         int bit = Integer.parseInt(b, 2);
         f_val = f_val.substring(0, 7-bit)+'1'+f_val.substring(8-bit);
@@ -93,7 +95,6 @@ public class Core {
 
     private void btfsc(String b, String f) {
         f = String.format("%02x", Integer.parseInt(f, 2));
-        b = b.substring(2)+b.charAt(1)+b.charAt(0);
         int bit = Integer.parseInt(b, 2);
         String f_val = registers.get(f);
         if (f_val.charAt(7-bit) == '0'){
@@ -104,7 +105,6 @@ public class Core {
 
     private void btfss(String b, String f){
         f = String.format("%02x", Integer.parseInt(f, 2));
-        b = b.substring(2)+b.charAt(1)+b.charAt(0);
         int bit = Integer.parseInt(b, 2);
         String f_val = registers.get(f);
         if (f_val.charAt(7-bit) == '1'){
@@ -366,7 +366,7 @@ public class Core {
 
     public final int step() {
         String opcode, pcl;
-        int flag = 0;
+        int flag_step = 0;
         opcode = prog_mem.get(String.format("%04x", pc));
         opcode = String.format("%12s", Integer.toBinaryString(Integer.parseInt(opcode, 16))).replace(' ', '0');
         try {
@@ -376,12 +376,12 @@ public class Core {
         }
         if (pc >= 255) {
             pc = 0;
-            flag = 1;
+            flag_step = 1;
         }
         else pc += 1;
         pcl = String.format("%12s", Integer.toBinaryString(pc)).replace(' ', '0');
         pcl = pcl.substring(4);
         registers.put("02", pcl);
-        return flag;
+        return flag_step;
     }
 }
