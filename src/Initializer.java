@@ -2,6 +2,7 @@ import java.util.*;
 import java.io.File;
 
 public class Initializer {
+    private static int n;
     public static HashMap<String, String> init_mem(String hex_file) {
         HashMap<String, String> prog_mem = new HashMap<>();
         try {
@@ -19,6 +20,7 @@ public class Initializer {
                         int j = 4*i;
                         opcode = line.substring(10+j, 12+j)+line.substring(8+j, 10+j);
                         prog_mem.put(String.format("%04x", addr_val+i), opcode);
+                        n += 1;
                     }
                 }
             }
@@ -53,6 +55,10 @@ public class Initializer {
             registers.put(String.format("%02x", i), "00000000");
         }
         return registers;
+    }
+
+    public static int getStartAddr() {
+        return n==0 ? 0 : 256-n;
     }
 
     public static boolean dcarry_add(String num1, String num2) {

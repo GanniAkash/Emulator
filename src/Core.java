@@ -1,6 +1,7 @@
 import java.io.FileNotFoundException;
 import java.util.*;
 
+@SuppressWarnings("unused")
 public class Core {
     private int pc;
     private final int freq;
@@ -18,11 +19,10 @@ public class Core {
         this.trisgpio_reg = "00001111";
         this.option_reg = "11111111";
         this.wdt = "00000000";
-        this.pc = 240;
+        this.pc = Initializer.getStartAddr();
         this.w_reg = "00";
         this.stack[0] = null;
         this.stack[1] = null;
-        System.out.println(trisgpio_reg+"\t"+option_reg+"\t"+wdt+"\t"+this.freq);
     }
 
     public final String getTrisgpio_Reg() {return trisgpio_reg;}
@@ -169,7 +169,6 @@ public class Core {
     }
 
     private void option() {
-        System.out.println("hi");
         option_reg = String.format("%8s", Integer.toBinaryString(Integer.parseInt(w_reg, 16))).replace(' ', '0');
     }
 

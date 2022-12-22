@@ -6,6 +6,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -80,9 +81,6 @@ public class Controller {
         data.add(new SFR("TRISGPIO", pic.getTrisgpio_Reg()));
         data.add(new SFR("OPTION", pic.getOption_Reg()));
         data.add(new SFR("W Register", pic.getW_Reg()));
-        String temp = pic.prog_mem.get(String.format("%04x", pic.getPc()));
-        temp = String.format("%12s", Integer.toBinaryString(Integer.parseInt(temp, 16))).replace(' ', '0');
-        data.add(new SFR("Next Opcode", temp));
         return data;
     }
 
@@ -105,12 +103,22 @@ public class Controller {
 
     @FXML
     private void step() {
-        System.out.println("step");
         if(pic == null) raiseError("Compile before stepping or running.");
         else {
             pic.step();
             updateTable();
         }
+    }
+
+    @FXML
+    private void close() {Platform.exit();}
+
+    @FXML
+    private void delete() {
+        editor.clear();
+        pic = null;
+        table.setItems(null);
+        table2.setItems(null);
     }
 
     @FXML
@@ -129,6 +137,8 @@ public class Controller {
             }
             else {
             }
+            file = null;
+            fc = null;
         }
         catch (Exception e) {
             raiseError("Error when trying to open file chooser.");
@@ -198,5 +208,17 @@ public class Controller {
 
     @FXML
     public void initialize() {
+        editor.clear();
+        try {
+            File file = new File("temp/temp.asm");
+            if (file.exists() && !file.isDirectory()) {
+                Scanner scan = new Scanner(file);
+                while (scan.hasNextLine()) {
+                    editor.appendText(scan.nextLine()+"\n");
+            }
+                scan.close();
+            }
+        }
+        catch (Exception e) {System.out.println(e.getMessage());}
     }
 }
