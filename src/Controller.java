@@ -15,11 +15,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.*;
 import java.util.Scanner;
 import java.util.Optional;
 public class Controller {
 
-    private String pic_as_path = "/Applications/microchip/xc8/v2.40/pic-as/bin/pic-as";
+    private Path pic_as_path = Paths.get("/Applications/microchip/xc8/v2.40/pic-as/bin/pic-as");
     Core pic =null;
 
     @FXML
@@ -148,12 +149,12 @@ public class Controller {
 
     @FXML
     private void getPath() {
-        TextInputDialog dialog = new TextInputDialog(pic_as_path);
+        TextInputDialog dialog = new TextInputDialog(pic_as_path.toString());
         dialog.setTitle("pic-as path");
         dialog.setHeaderText("Give the path for the pic-as assembler.");
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent() && !result.get().strip().equals("")) {
-            pic_as_path = result.get();
+            pic_as_path = Paths.get(result.get());
         }
     }
 
@@ -162,7 +163,7 @@ public class Controller {
         //writing to a .asm file to compile
         String code = editor.getText();
         try {
-            FileWriter fw = new FileWriter("temp/temp.asm");
+            FileWriter fw = new FileWriter(Paths.get("temp/temp.asm").toString());
             fw.write(code);
             fw.close();
         }
@@ -171,7 +172,7 @@ public class Controller {
         }
         //compiling
         try {
-            Process process = Runtime.getRuntime().exec(pic_as_path+" -mcpu=PIC10F200 -otemp/temp temp/temp.asm -xassembler-with-cpp");
+            Process process = Runtime.getRuntime().exec(pic_as_path+" -mcpu=PIC10F200 -o"+Paths.get("temp/temp").toString()+" "+Paths.get("temp/temp.asm").toString()+" -xassembler-with-cpp");
 
             int exitVal = process.waitFor();
             if (exitVal == 0) {
