@@ -5,8 +5,10 @@ public class Core {
     private int pc;
     private final int freq;
     private final Integer[] stack = new Integer[2];
-    private String trisgpio_reg, option_reg, w_reg, wdt;
-    private final HashMap<String, String> prog_mem;
+    private String w_reg, wdt;
+    private String trisgpio_reg, option_reg;
+    public String opcode;
+    public final HashMap<String, String> prog_mem;
     public final HashMap<String, String> registers;
     public Core(String hex_file, int freq) throws FileNotFoundException {
         this.prog_mem = Initializer.init_mem(hex_file);
@@ -23,8 +25,13 @@ public class Core {
         System.out.println(trisgpio_reg+"\t"+option_reg+"\t"+wdt+"\t"+this.freq);
     }
 
+    public final String getTrisgpio_Reg() {return trisgpio_reg;}
+    public final String getOption_Reg() {return option_reg;}
+    public final String getW_Reg() {return w_reg;}
+    public final int getPc() {return pc;}
+
     private void execute(String opcode){
-        if (opcode.equals("000000000000")) {assert true;}
+        if (opcode.equals("000000000000")) {}
         else if(opcode.equals("000000000010")) option();
         else if(opcode.equals("000000000010")) clrwdt();
         else if(opcode.equals("000000000011")) sleep();
@@ -162,6 +169,7 @@ public class Core {
     }
 
     private void option() {
+        System.out.println("hi");
         option_reg = String.format("%8s", Integer.toBinaryString(Integer.parseInt(w_reg, 16))).replace(' ', '0');
     }
 

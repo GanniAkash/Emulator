@@ -1,9 +1,9 @@
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.collections.FXCollections;
@@ -14,13 +14,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.Scanner;
 import java.util.Optional;
 public class Controller {
 
-    private String pic_as_path = "pic-as";
+    private String pic_as_path = "/Applications/microchip/xc8/v2.40/pic-as/bin/pic-as";
     Core pic =null;
 
     @FXML
@@ -32,6 +30,11 @@ public class Controller {
     @FXML
     private TextArea editor;
 
+    private void raiseError(String err) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setContentText(err);
+        alert.show();
+    }
     public class SFR {
         private String addr, val;
 
@@ -63,9 +66,23 @@ public class Controller {
         map.forEach((addr, val) -> {
             if (Integer.parseInt(addr, 16) < 8) {
                 if (val == null) val = "null";
+                if (addr == "00") addr = "INDF";
+                else if (addr == "01") addr = "TMR0";
+                else if (addr == "02") addr = "PCL";
+                else if (addr == "03") addr = "STATUS";
+                else if (addr == "04") addr = "FSR";
+                else if (addr == "05") addr = "OSCCAL";
+                else if (addr == "06") addr = "GPIO";
+                else if(addr == "07") addr = "CMCON0";
                 data.add(new SFR(addr, val));
             }
         });
+        data.add(new SFR("TRISGPIO", pic.getTrisgpio_Reg()));
+        data.add(new SFR("OPTION", pic.getOption_Reg()));
+        data.add(new SFR("W Register", pic.getW_Reg()));
+        String temp = pic.prog_mem.get(String.format("%04x", pic.getPc()));
+        temp = String.format("%12s", Integer.toBinaryString(Integer.parseInt(temp, 16))).replace(' ', '0');
+        data.add(new SFR("Next Opcode", temp));
         return data;
     }
 
@@ -101,6 +118,7 @@ public class Controller {
         editor.clear();
         try {
             FileChooser fc = new FileChooser();
+            fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("ASM files (.asm)", ".*.asm", "*.as", "*.s"));
             File file = fc.showOpenDialog(table.getScene().getWindow());
             if (file != null) {
                 Scanner scan = new Scanner(file);
@@ -109,53 +127,60 @@ public class Controller {
                 }
                 scan.close();
             }
+            else {
+            }
         }
-        catch (Exception e) {System.out.println(e.getMessage());}
+        catch (Exception e) {
+            raiseError("Error when trying to open file chooser.");
+        }
     }
 
-    private void raiseError(String err) {
-        Alert alert = new Alert(null);
-        alert.setTitle("alert");
-        alert.setContentText(err);
-        ButtonType bt = new ButtonType("Close");
-        alert.getButtonTypes().add(bt);
-        alert.show();
+
+    @FXML
+    private void getPath() {
+        TextInputDialog dialog = new TextInputDialog(pic_as_path);
+        dialog.setTitle("pic-as path");
+        dialog.setHeaderText("Give the path for the pic-as assembler.");
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent() && !result.get().strip().equals("")) {
+            pic_as_path = result.get();
+        }
     }
 
     @FXML
     private void compile() throws IOException {
+        //writing to a .asm file to compile
         String code = editor.getText();
         try {
-            FileWriter fw = new FileWriter("out/production/Emulator/temp.asm");
+            FileWriter fw = new FileWriter("temp/temp.asm");
             fw.write(code);
             fw.close();
         }
-        catch (Exception e) {System.out.println(e.getMessage());}
+        catch (Exception e) {
+            raiseError("Error occured while writing to a file.");
+        }
         //compiling
         try {
-            Process process = Runtime.getRuntime().exec(pic_as_path+" -mcpu=PIC10F200 -oout/production/Emulator/temp out/production/Emulator/temp.asm -xassembler-with-cpp");
-            StringBuilder output = new StringBuilder();
-
-		    BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-		    String line;
-		    while ((line = reader.readLine()) != null) {
-			    output.append(line + "\n");
-		    }
+            Process process = Runtime.getRuntime().exec(pic_as_path+" -mcpu=PIC10F200 -otemp/temp temp/temp.asm -xassembler-with-cpp");
 
             int exitVal = process.waitFor();
             if (exitVal == 0) {
-                init();
+                init_core();
                 updateTable();
             }
             else raiseError("Could not compile");
         }
-        catch (Exception e) {System.out.println("Error !!!!");}
+        catch (IOException e) {
+            raiseError("Path to pic-as compiler not set.\nPlease set it in the settings menu.");
+        }
+        catch (Exception e) {
+            raiseError("Error while trying compiling");
+        }
     }
 
-    private void init() throws FileNotFoundException{
+    private void init_core() throws FileNotFoundException{
         try {
-            pic = new Core("out/production/Emulator/temp.hex", 1);
+            pic = new Core("temp/temp.hex", 1);
         }
         catch (FileNotFoundException e) {
             raiseError("No such file found!");
@@ -169,18 +194,6 @@ public class Controller {
         addr2.setCellValueFactory(new PropertyValueFactory<SFR,String>("addr"));
         val2.setCellValueFactory(new PropertyValueFactory<SFR,String>("val"));
         table2.setItems(reg(pic));
-    }
-
-    @FXML
-    private void getPath() {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("pic-as path");
-        dialog.setHeaderText("Give the path for the pic-as assembler.");
-        Optional<String> result = dialog.showAndWait();
-        if (result.isPresent() && !result.get().equals("")) {
-            pic_as_path = result.get();
-        }
-
     }
 
     @FXML

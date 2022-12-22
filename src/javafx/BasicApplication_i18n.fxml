@@ -86,8 +86,8 @@
                   <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                </columnResizePolicy>
                <columns>
-                  <TableColumn fx:id="addr" minWidth="-1.0" prefWidth="-1.0" text="SFR" />
-                  <TableColumn fx:id="val" minWidth="-1.0" prefWidth="-1.0" text="Value" />
+                  <TableColumn fx:id="addr" minWidth="-1.0" prefWidth="-1.0" sortable="false" text="SFR" />
+                  <TableColumn fx:id="val" minWidth="-1.0" prefWidth="-1.0" sortable="false" text="Value" />
                </columns>
             </TableView>
             <TableView id="table2" fx:id="table2" layoutX="10.0" layoutY="10.0" HBox.hgrow="ALWAYS">
@@ -95,8 +95,8 @@
                   <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                </columnResizePolicy>
                <columns>
-                  <TableColumn fx:id="addr2" minWidth="-1.0" prefWidth="-1.0" text="Address" />
-                  <TableColumn fx:id="val2" minWidth="-1.0" prefWidth="-1.0" text="Value" />
+                  <TableColumn fx:id="addr2" minWidth="-1.0" prefWidth="-1.0" sortType="DESCENDING" text="Address" />
+                  <TableColumn fx:id="val2" minWidth="-1.0" prefWidth="-1.0" sortable="false" text="Value" />
                </columns>
             </TableView>
          </children>
